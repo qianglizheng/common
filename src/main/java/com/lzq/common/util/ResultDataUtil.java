@@ -4,15 +4,36 @@ import com.lzq.common.enums.ReturnCodeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+/**
+ * 1.构造方法私有化
+ * 2.方法静态
+ * @param <T>
+ */
+
 @Data
 @Accessors(chain = true)
-public class ResultDataUtil<T> {
+public final class ResultDataUtil<T> {
+    /**
+     * 响应码
+     */
     private String code;
+
+    /**
+     * 响应消息
+     */
     private String message;
+
+    /**
+     * 响应数据
+     */
     private T data;
+
+    /**
+     * 响应时间
+     */
     private long timestamp;
 
-    public ResultDataUtil() {
+    private ResultDataUtil() {
         this.timestamp = System.currentTimeMillis();
     }
 
