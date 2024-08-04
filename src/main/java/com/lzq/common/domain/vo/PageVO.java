@@ -1,5 +1,6 @@
 package com.lzq.common.domain.vo;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;
 
@@ -43,7 +44,7 @@ public class PageVO<T> {
             vo.setRecords(Collections.emptyList());
         }
 
-        vo.setRecords(Collections.emptyList());
+        vo.setRecords(BeanUtil.copyToList(records, clazz));
         return vo;
     }
 }
