@@ -4,7 +4,6 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.time.LocalDateTime;
@@ -23,10 +22,10 @@ public class CacheUtil {
     /**
      * 设置redis缓存
      *
-     * @param key
-     * @param value
-     * @param time
-     * @param timeUnit
+     * @param key      缓存的键
+     * @param value    值
+     * @param time     时间
+     * @param timeUnit 时间单位
      */
     public void set(String key, Object value, Long time, TimeUnit timeUnit) {
         stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(value), time, timeUnit);
@@ -84,15 +83,16 @@ public class CacheUtil {
 
     /**
      * 逻辑过期解决缓存击穿
-     * @param keyPrefix
-     * @param id
-     * @param type
-     * @param dbFallback
-     * @param time
-     * @param timeUnit
-     * @return
-     * @param <R>
-     * @param <ID>
+     *
+     * @param keyPrefix  业务前缀
+     * @param id         id
+     * @param type       类型
+     * @param dbFallback 查询数据函数
+     * @param time       时间
+     * @param timeUnit   时间单位
+     * @param <R>        返回数据泛型
+     * @param <ID>       id的泛型
+     * @return R
      */
     public <R, ID> R queryWithLogicalExpire(String keyPrefix, ID id, Class<R> type, Function<ID, R> dbFallback, Long time, TimeUnit timeUnit) {
         String key = keyPrefix + id;
@@ -104,6 +104,8 @@ public class CacheUtil {
         RedisData redisData = JSONUtil.toBean(json, RedisData.class);
         R r = JSONUtil.toBean((JSONObject) redisData.getData(), type);
         LocalDateTime expiredTime = redisData.getExpiredTime();
+
+        //没有过期，直接返回
         if (expiredTime.isAfter(LocalDateTime.now())) {
             return r;
         }
@@ -129,14 +131,15 @@ public class CacheUtil {
                 }
             });
         }
+        //返回过期的缓存
         return r;
     }
 
     /**
      * 获取锁
      *
-     * @param key
-     * @return
+     * @param key 锁的key
+     * @return 成功或者失败
      */
     private boolean tryLock(String key) {
         Boolean flag = stringRedisTemplate.opsForValue().setIfAbsent(key, "1", 10, TimeUnit.SECONDS);
@@ -146,7 +149,7 @@ public class CacheUtil {
     /**
      * 释放锁
      *
-     * @param key
+     * @param key 锁key
      */
     public void unlock(String key) {
         stringRedisTemplate.delete(key);
