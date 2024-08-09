@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * 使用redis生成全局唯一ID 分布式ID
+ */
 public class RedisIdWorker {
 
     private final StringRedisTemplate stringRedisTemplate;
